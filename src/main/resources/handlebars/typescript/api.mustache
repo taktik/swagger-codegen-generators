@@ -1,0 +1,67 @@
+{{>licenseInfo}}
+{{#operations}}
+
+import { XHR } from "./XHR"
+{{#imports}}
+import { {{classname}} } from '../{{filename}}';
+{{/imports}}
+
+{{#description}}
+/**
+ * {{&description}}
+ */
+{{/description}}
+
+export class {{classname}} {
+  host: string
+  headers: Array<XHR.Header>
+  fetchImpl?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+
+  constructor(host: string, headers: any, fetchImpl?: (input: RequestInfo, init?: RequestInit) => Promise<Response>) {
+    this.host = host
+    this.headers = Object.keys(headers).map(k => new XHR.Header(k, headers[k]))
+    this.fetchImpl = fetchImpl
+  }
+
+  setHeaders(h: Array<XHR.Header>) {
+    this.headers = h
+  }
+
+  handleError(e: XHR.Data) {
+    if (e.status == 401) throw Error("auth-failed")
+    else throw Error("api-error" + e.status)
+  }
+
+  {{#operation}}
+  {{#contents}}
+
+     /**
+      * {{&notes}}
+      {{#summary}}
+      * @summary {{&summary}}
+      {{/summary}}
+      {{#parameters}}* @param {{paramName}} {{description}}
+      {{/parameters}}*/
+ {{nickname}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/parameters}}): Promise<{{#returnType}}{{{returnType}}} | any{{/returnType}}{{^returnType}}any | Boolean{{/returnType}}> {
+    let _body = null
+    {{#bodyParam}}_body = {{paramName}}
+    {{/bodyParam}}{{#formParams}};{{paramName}} && (_body = (_body || new FormData())).append('{{paramName}}', new Blob({{paramName}}, {type: "application/octet-stream"})){{/formParams}}
+    {{=<% %>=}}
+    const _url = this.host + "<%path%>"<%#pathParams%>.replace("{<%paramName%>}", <%paramName%>+"")<%/pathParams%> + "?ts=" + new Date().getTime() <%#queryParams%> + (<%paramName%> ? "&<%paramName%>=" + <%paramName%> : "")<%/queryParams%>
+    <%={{ }}=%>
+    let headers = this.headers
+    {{#consumes}}
+    {{#mediaType}}headers = headers.filter(h => h.header !== "Content-Type").concat(new XHR.Header("Content-Type", "{{mediaType}}")){{/mediaType}}
+    {{/consumes}}
+    {{#headerParams}}
+        {{paramName}} && (headers = headers.concat(new XHR.Header("{{baseName}}", {{paramName}})))
+    {{/headerParams}}
+    return XHR.sendCommand("{{httpMethod}}", _url, headers, _body, this.fetchImpl)
+      .then(doc => {{#returnType}}{{^isListContainer}} {{^returnTypeIsPrimitive}}{{^isResponseBinary}}new {{{returnType}}}(doc.body as JSON){{/isResponseBinary}}{{#isResponseBinary}}doc.body{{/isResponseBinary}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify(doc.body)){{/returnTypeIsPrimitive}}{{/isListContainer}}{{#isListContainer}}(doc.body as Array<JSON>).map(it => {{^returnTypeIsPrimitive}}new {{{returnBaseType}}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify{{/returnTypeIsPrimitive}}(it)){{#returnTypeIsPrimitive}}){{/returnTypeIsPrimitive}}{{/isListContainer}}{{/returnType}}{{^returnType}}(true){{/returnType}})
+      .catch(err => this.handleError(err))
+}
+  {{/contents}}
+  {{/operation}}
+}
+{{newline}}
+{{/operations}}
