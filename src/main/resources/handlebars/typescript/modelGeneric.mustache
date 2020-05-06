@@ -9,6 +9,6 @@ export class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{ {{>model
      * {{{description}}}
      */
     {{/description}}
-    {{#is this 'read-only'}}readonly {{/is}}{{name}}{{^required}}?{{/required}}: {{#is this 'enum'}}{{{datatypeWithEnum}}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}{{/isNot}};
+    {{#is this 'read-only'}}readonly {{/is}}{{name}}?: {{#is this 'enum'}}{{{datatypeWithEnum}}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}{{/isNot}};
 {{/vars}}
 }{{>modelGenericEnums}}

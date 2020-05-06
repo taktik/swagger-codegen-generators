@@ -2674,6 +2674,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenProperty = codegenProperty.items;
             }
         }
+        else if (schema instanceof MapSchema) {
+            final MapSchema mapSchema = (MapSchema) schema;
+            CodegenProperty codegenProperty = fromProperty(REQUEST_BODY_NAME, schema);
+            codegenParameter.dataType = codegenProperty.datatype;
+            codegenParameter.baseType = codegenProperty.baseType;
+            if (codegenProperty.complexType != null) {
+                imports.add(codegenProperty.complexType);
+            }
+            if (mapSchema.getAdditionalProperties() instanceof Schema) {
+                CodegenProperty additionalProperty = fromProperty("values", (Schema) mapSchema.getAdditionalProperties());
+                if (additionalProperty.complexType != null) {
+                    imports.add(additionalProperty.complexType);
+                }
+            }
+        }
         else if (schema instanceof BinarySchema) {
             codegenParameter.dataType = "Object";
             codegenParameter.baseType = "Object";

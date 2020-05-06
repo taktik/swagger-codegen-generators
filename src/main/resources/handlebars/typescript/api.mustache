@@ -40,15 +40,13 @@ export class {{classname}} {
       {{#summary}}
       * @summary {{&summary}}
       {{/summary}}
-      {{#parameters}}* @param {{paramName}} {{description}}
-      {{/parameters}}*/
- {{nickname}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/parameters}}): Promise<{{#returnType}}{{{returnType}}} | any{{/returnType}}{{^returnType}}any | Boolean{{/returnType}}> {
+      {{#allParams}}* @param {{paramName}} {{description}}
+      {{/allParams}}*/
+ {{operationId}}({{#allParams}}{{^isBodyParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}{{#hasBodyParam}}, {{/hasBodyParam}}{{/hasMore}}{{/isBodyParam}}{{/allParams}}{{#bodyParams}}{{paramName}}?: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/bodyParams}}): Promise<{{#returnType}}{{{returnType}}} | any{{/returnType}}{{^returnType}}any | Boolean{{/returnType}}> {
     let _body = null
     {{#bodyParam}}_body = {{paramName}}
     {{/bodyParam}}{{#formParams}};{{paramName}} && (_body = (_body || new FormData())).append('{{paramName}}', new Blob({{paramName}}, {type: "application/octet-stream"})){{/formParams}}
-    {{=<% %>=}}
-    const _url = this.host + "<%path%>"<%#pathParams%>.replace("{<%paramName%>}", <%paramName%>+"")<%/pathParams%> + "?ts=" + new Date().getTime() <%#queryParams%> + (<%paramName%> ? "&<%paramName%>=" + <%paramName%> : "")<%/queryParams%>
-    <%={{ }}=%>
+    const _url = this.host + `{{path}}` + "?ts=" + new Date().getTime() {{#queryParams}} + ({{paramName}} ? "&{{paramName}}=" + encodeURIComponent(String({{paramName}})) : ""){{/queryParams}}
     let headers = this.headers
     {{#consumes}}
     {{#mediaType}}headers = headers.filter(h => h.header !== "Content-Type").concat(new XHR.Header("Content-Type", "{{mediaType}}")){{/mediaType}}
@@ -57,7 +55,7 @@ export class {{classname}} {
         {{paramName}} && (headers = headers.concat(new XHR.Header("{{baseName}}", {{paramName}})))
     {{/headerParams}}
     return XHR.sendCommand("{{httpMethod}}", _url, headers, _body, this.fetchImpl)
-      .then(doc => {{#returnType}}{{^isListContainer}} {{^returnTypeIsPrimitive}}{{^isResponseBinary}}new {{{returnType}}}(doc.body as JSON){{/isResponseBinary}}{{#isResponseBinary}}doc.body{{/isResponseBinary}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify(doc.body)){{/returnTypeIsPrimitive}}{{/isListContainer}}{{#isListContainer}}(doc.body as Array<JSON>).map(it => {{^returnTypeIsPrimitive}}new {{{returnBaseType}}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify{{/returnTypeIsPrimitive}}(it)){{#returnTypeIsPrimitive}}){{/returnTypeIsPrimitive}}{{/isListContainer}}{{/returnType}}{{^returnType}}(true){{/returnType}})
+      .then(doc => {{#returnType}}{{^isListContainer}} {{^returnTypeIsPrimitive}}new {{{returnType}}}(doc.body as JSON){{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}{{#isBinary responseType}}doc.body{{else}}JSON.parse(JSON.stringify(doc.body)){{/isBinary}}{{/returnTypeIsPrimitive}}{{/isListContainer}}{{#isListContainer}}(doc.body as Array<JSON>).map(it => {{^returnTypeIsPrimitive}}new {{{returnBaseType}}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify{{/returnTypeIsPrimitive}}(it)){{#returnTypeIsPrimitive}}){{/returnTypeIsPrimitive}}{{/isListContainer}}{{/returnType}}{{^returnType}}(true){{/returnType}})
       .catch(err => this.handleError(err))
 }
   {{/contents}}

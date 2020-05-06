@@ -1,5 +1,7 @@
 package io.swagger.codegen.v3.generators.typescript;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Options;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
@@ -37,7 +39,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
     public TypeScriptClientCodegen() {
         super();
         this.outputFolder = "generated-code" + File.separator + "typescript";
-
+        this.sortParamsByRequiredFlag = false;
     }
 
     public void setClassPrefix(String classPrefix) {
@@ -46,6 +48,20 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
 
     public void setSkipPathPrefix(String skipPathPrefix) {
         this.skipPathPrefix = skipPathPrefix;
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelper("isBinary", (o, options) -> {
+            Options.Buffer buffer = options.buffer();
+            if (options.context.model().equals("ArrayBuffer")) {
+                buffer.append(options.fn());
+            } else {
+                buffer.append(options.inverse());
+            }
+            return buffer;
+        });
     }
 
     @Override
@@ -65,7 +81,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
 
     @Override
     public String getHelp() {
-        return "Generates a TypeScript Angular (2.x or 4.x) client library.";
+        return "Generates a TypeScript client library.";
     }
 
     @Override
@@ -95,7 +111,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
         supportingFiles.add(
                 new SupportingFile("models.mustache", modelPackage().replace('.', '/'), "models.ts"));
         supportingFiles
-                .add(new SupportingFile("ApiClient.mustache", apiPackage().replace('.', '/'), "Api.ts"));
+                .add(new SupportingFile("ApiClient.mustache", "", "iccApi.ts"));
         supportingFiles.add(new SupportingFile("XHR.mustache", apiPackage().replace('.', '/'), "XHR.ts"));
     }
 
@@ -133,7 +149,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
             inner = new ObjectSchema();
             return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
         } else if(propertySchema instanceof FileSchema || propertySchema instanceof BinarySchema) {
-            return "Blob";
+            return "ArrayBuffer";
         } else if(propertySchema instanceof ObjectSchema) {
             return "any";
         } else {
@@ -309,33 +325,8 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
         return modelPackage() + "/" + toModelFilename(name);
     }
 
-    public String getNpmName() {
-        return npmName;
-    }
-
-    public void setNpmName(String npmName) {
-        this.npmName = npmName;
-    }
-
-    public String getNpmVersion() {
-        return npmVersion;
-    }
-
-    public void setNpmVersion(String npmVersion) {
-        this.npmVersion = npmVersion;
-    }
-
-    public String getNpmRepository() {
-        return npmRepository;
-    }
-
-    public void setNpmRepository(String npmRepository) {
-        this.npmRepository = npmRepository;
-    }
-
     private String getApiFilenameFromClassname(String classname) {
-        String name = classname.substring(0, classname.length() - "Service".length());
-        return toApiFilename(name);
+        return toApiFilename(classname);
     }
 
     private String getModelnameFromModelFilename(String filename) {
