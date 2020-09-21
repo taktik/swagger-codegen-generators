@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
  * @since 2.1.3-M1
  */
 public class SwaggerCodegen {
-
-
     private static Logger LOGGER = LoggerFactory.getLogger(SwaggerCodegen.class);
     private static String GENERATE_COMMAND_NAME = "Generate";
 

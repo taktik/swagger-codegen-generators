@@ -27,9 +27,8 @@ export class {{classname}} {
     this.headers = h
   }
 
-  handleError(e: XHR.Data) {
-    if (e.status == 401) throw Error("auth-failed")
-    else throw Error("api-error" + e.status)
+  handleError(e: XHR.XHRError): never {
+    throw e
   }
 
   {{#operation}}
@@ -42,10 +41,18 @@ export class {{classname}} {
       {{/summary}}
       {{#allParams}}* @param {{paramName}} {{description}}
       {{/allParams}}*/
- {{operationId}}({{#allParams}}{{^isBodyParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}{{#hasBodyParam}}, {{/hasBodyParam}}{{/hasMore}}{{/isBodyParam}}{{/allParams}}{{#bodyParams}}{{paramName}}?: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/bodyParams}}): Promise<{{#returnType}}{{{returnType}}} | any{{/returnType}}{{^returnType}}any | Boolean{{/returnType}}> {
+ {{operationId}}({{#allParams}}{{^isBodyParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#isFormParam}} | any[]{{/isFormParam}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}{{#hasBodyParam}}, {{/hasBodyParam}}{{/hasMore}}{{/isBodyParam}}{{/allParams}}{{#bodyParams}}{{paramName}}?: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/bodyParams}}): Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}any | Boolean{{/returnType}}> {
     let _body = null
     {{#bodyParam}}_body = {{paramName}}
-    {{/bodyParam}}{{#formParams}};{{paramName}} && (_body = (_body || new FormData())).append('{{paramName}}', new Blob({{paramName}}, {type: "application/octet-stream"})){{/formParams}}
+    {{/bodyParam}}{{#formParams}}
+    if ({{paramName}} && !_body) {
+      const parts = Array.isArray({{paramName}}) ? {{paramName}} as any[] : [{{paramName}} as ArrayBuffer]
+      const _blob = new Blob(parts, {type: "application/octet-stream"})
+      _body = new FormData()
+      _body.append("{{paramName}}", _blob)
+    }
+    {{/formParams}}
+
     const _url = this.host + `{{path}}` + "?ts=" + new Date().getTime() {{#queryParams}} + ({{paramName}} ? "&{{paramName}}=" + encodeURIComponent(String({{paramName}})) : ""){{/queryParams}}
     let headers = this.headers
     {{#consumes}}
@@ -55,7 +62,13 @@ export class {{classname}} {
         {{paramName}} && (headers = headers.concat(new XHR.Header("{{baseName}}", {{paramName}})))
     {{/headerParams}}
     return XHR.sendCommand("{{httpMethod}}", _url, headers, _body, this.fetchImpl)
-      .then(doc => {{#returnType}}{{^isListContainer}} {{^returnTypeIsPrimitive}}new {{{returnType}}}(doc.body as JSON){{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}{{#isBinary responseType}}doc.body{{else}}JSON.parse(JSON.stringify(doc.body)){{/isBinary}}{{/returnTypeIsPrimitive}}{{/isListContainer}}{{#isListContainer}}(doc.body as Array<JSON>).map(it => {{^returnTypeIsPrimitive}}new {{{returnBaseType}}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify{{/returnTypeIsPrimitive}}(it)){{#returnTypeIsPrimitive}}){{/returnTypeIsPrimitive}}{{/isListContainer}}{{/returnType}}{{^returnType}}(true){{/returnType}})
+      .then(doc => {{#returnType}}
+          {{#isBinary responseType}}doc.body{{else}}
+              {{^isListContainer}}{{^returnTypeIsPrimitive}}new {{{returnType}}}(doc.body as JSON){{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify(doc.body)){{/returnTypeIsPrimitive}}
+              {{/isListContainer}}{{#isListContainer}}(doc.body as Array<JSON>).map(it => {{^returnTypeIsPrimitive}}new {{{returnBaseType}}}{{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}JSON.parse(JSON.stringify{{/returnTypeIsPrimitive}}(it){{#returnTypeIsPrimitive}}){{/returnTypeIsPrimitive}}){{/isListContainer}}
+          {{/isBinary}}
+      {{/returnType}}
+      {{^returnType}}(true){{/returnType}})
       .catch(err => this.handleError(err))
 }
   {{/contents}}

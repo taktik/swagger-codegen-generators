@@ -111,7 +111,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
         supportingFiles.add(
                 new SupportingFile("models.mustache", modelPackage().replace('.', '/'), "models.ts"));
         supportingFiles
-                .add(new SupportingFile("ApiClient.mustache", "", "iccApi.ts"));
+                .add(new SupportingFile("ApiClient.mustache", "", this.classPrefix + "Api.ts"));
         supportingFiles.add(new SupportingFile("XHR.mustache", apiPackage().replace('.', '/'), "XHR.ts"));
     }
 
@@ -141,7 +141,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
         if(propertySchema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema)propertySchema;
             inner = arraySchema.getItems();
-            return this.getSchemaType(propertySchema) + "<" + this.getTypeDeclaration(inner) + ">";
+            return inner.getFormat() != null && inner.getFormat().equals("byte") ? "ArrayBuffer" : this.getSchemaType(propertySchema) + "<" + this.getTypeDeclaration(inner) + ">";
         } else if(propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
             inner = (Schema) propertySchema.getAdditionalProperties();
             return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
