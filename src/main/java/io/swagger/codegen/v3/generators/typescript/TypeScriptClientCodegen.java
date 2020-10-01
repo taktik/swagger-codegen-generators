@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.Options;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
@@ -113,6 +114,7 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
         supportingFiles
                 .add(new SupportingFile("ApiClient.mustache", "", this.classPrefix + "Api.ts"));
         supportingFiles.add(new SupportingFile("XHR.mustache", apiPackage().replace('.', '/'), "XHR.ts"));
+        supportingFiles.add(new SupportingFile("ModelHelper.mustache", modelPackage().replace('.', '/'), "ModelHelper.ts"));
     }
 
     private String getIndexDirectory() {
@@ -279,6 +281,13 @@ public class TypeScriptClientCodegen extends AbstractTypeScriptClientCodegen {
             }
         }
         return processedModels;
+    }
+
+    @Override
+    public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
+        if (property.datatype.equals("ArrayBuffer")) {
+            property.vendorExtensions.put("x-is-array-buffer", true);
+        }
     }
 
     private List<Map<String, String>> toTsImports(CodegenModel cm, Set<String> imports) {

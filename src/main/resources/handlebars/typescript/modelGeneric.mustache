@@ -1,6 +1,8 @@
+import {decodeBase64} from "./ModelHelper";
+
 export class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{ {{>modelGenericAdditionalProperties}}
     constructor(json: JSON | any) {
-        Object.assign(this as {{classname}}, json)
+        Object.assign(this as {{classname}}, json{{#vars}}{{#is this 'array-buffer'}}, json.{{name}} ? { {{name}}: decodeBase64(json.{{name}}) } : {}{{/is}}{{/vars}})
     }
 
 {{#vars}}

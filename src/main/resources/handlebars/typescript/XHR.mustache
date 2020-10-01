@@ -90,7 +90,7 @@ export namespace XHR {
       Object.assign(
         {
           method: method,
-          credentials: "include",
+          credentials: "include" as RequestCredentials,
           headers:
             (headers &&
               headers
