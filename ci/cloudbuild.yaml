@@ -1,0 +1,19 @@
+steps:
+    -   name: 'gcr.io/cloud-builders/git'
+        entrypoint: 'bash'
+        args: [ '-c', 'git fetch --unshallow --tags && git checkout ${BRANCH_NAME} && git submodule init && git submodule update' ]
+
+    -   name: 'gcr.io/cloud-builders/docker'
+        args: ['login', 'docker.taktik.be', '--username', '${_REPO_USERNAME}', '--password', '${_REPO_PASSWORD}']
+
+    -   name: 'alpine' # java + docker
+        entrypoint: 'bash'
+        args: [ '-c', 'echo "<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>maven.taktik.be</id><username>$_REPO_USERNAME</username><password>$_REPO_PASSWORD</password></server></servers></settings>" > settings.xml' ]
+
+    -   name: 'docker.taktik.be/javac' # java + docker
+        entrypoint: 'bash'
+        args: [ '-c', './mvnw deploy' ]
+
+options:
+    machineType: 'N1_HIGHCPU_32'
+timeout: 2700s
