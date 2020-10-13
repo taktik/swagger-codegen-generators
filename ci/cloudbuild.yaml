@@ -8,7 +8,7 @@ steps:
 
     -   name: 'docker.taktik.be/javac' # java + docker
         entrypoint: 'bash'
-        args: [ '-c', 'echo "<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>maven.taktik.be</id><username>$_REPO_USERNAME</username><password>$_REPO_PASSWORD</password></server></servers></settings>" > settings.xml && ./mvnw deploy -X -gs settings.xml' ]
+        args: [ '-c', 'mkdir -p ~/.m2 && echo "<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>maven.taktik.be</id><username>$_REPO_USERNAME</username><password>$_REPO_PASSWORD</password></server></servers></settings>" > ~/.m2/settings.xml && ./mvnw deploy -X' ]
 
 options:
     machineType: 'N1_HIGHCPU_32'
