@@ -12,7 +12,7 @@ steps:
 
     -   name: 'docker.taktik.be/javac' # java + docker
         entrypoint: 'bash'
-        args: [ '-c', './mvnw deploy' ]
+        args: [ '-c', './mvnw deploy -X' ]
 
 options:
     machineType: 'N1_HIGHCPU_32'
