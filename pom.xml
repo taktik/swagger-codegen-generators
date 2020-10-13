@@ -16,7 +16,7 @@
     <packaging>jar</packaging>
     <distributionManagement>
         <snapshotRepository>
-            <id>nexus-snapshots</id>
+            <id>maven.taktik.be</id>
             <url>https://maven.taktik.be/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
