@@ -16,6 +16,7 @@ import java.util.Map;
 public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     public static final String DATE_LIBRARY = "dateLibrary";
+    public static final String NO_SUPPORT = "noSupport";
     private static Logger LOGGER = LoggerFactory.getLogger(KotlinClientCodegen.class);
 
     protected String dateLibrary = DateLibrary.JAVA8.value;
@@ -58,7 +59,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         dateLibrary.setEnum(dateOptions);
         cliOptions.add(dateLibrary);
 
-        cliOptions.add(CliOption.newBoolean("noSupport", "Option. Skip supporting files."));
+        cliOptions.add(CliOption.newBoolean(NO_SUPPORT, "Option. Skip supporting files."));
     }
 
     @Override
@@ -88,6 +89,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         this.dateLibrary = library;
     }
 
+    public void setNoSupport(Boolean noSupport) {
+        this.noSupport = noSupport;
+    }
+
+
     @Override
     public void processOpts() {
         super.processOpts();
@@ -98,6 +104,10 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             setDateLibrary(additionalProperties.get(DATE_LIBRARY).toString());
+        }
+
+        if (additionalProperties.containsKey(NO_SUPPORT)) {
+            setNoSupport(additionalProperties.get(NO_SUPPORT).toString().equals("true"));
         }
 
         if (DateLibrary.THREETENBP.value.equals(dateLibrary)) {
