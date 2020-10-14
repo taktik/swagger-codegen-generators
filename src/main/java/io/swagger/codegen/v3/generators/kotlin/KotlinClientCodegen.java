@@ -19,6 +19,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     private static Logger LOGGER = LoggerFactory.getLogger(KotlinClientCodegen.class);
 
     protected String dateLibrary = DateLibrary.JAVA8.value;
+    protected Boolean noSupport = false;
 
     public enum DateLibrary {
         STRING("string"),
@@ -56,6 +57,8 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         dateOptions.put(DateLibrary.JAVA8.value, "Java 8 native JSR310");
         dateLibrary.setEnum(dateOptions);
         cliOptions.add(dateLibrary);
+
+        cliOptions.add(CliOption.newBoolean("noSupport", "Option. Skip supporting files."));
     }
 
     @Override
@@ -113,10 +116,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
             additionalProperties.put(DateLibrary.JAVA8.value, true);
         }
 
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-
-        supportingFiles.add(new SupportingFile("build.gradle.mustache", "", "build.gradle"));
-        supportingFiles.add(new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
+        if (!noSupport) {
+            supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+            supportingFiles.add(new SupportingFile("build.gradle.mustache", "", "build.gradle"));
+            supportingFiles.add(new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
+        }
 
         final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", "/");
 
