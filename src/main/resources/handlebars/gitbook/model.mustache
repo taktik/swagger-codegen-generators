@@ -7,9 +7,9 @@
 
 ## Properties
 
-| Property | Options | Type | Description |
-| :--- | :--- |
-{{#vars}}`{{name}}` | {{^required}}optional{{/required}} | {{#isNot this 'primitive-type'}}[{{datatype}}]({{complexType}}){{/isNot}} | {{unescapedDescription}} {{#dataFormat}}format: {{{dataFormat}}}{{/dataFormat}}{{#is this 'enum'}}Values: {{#_enum}}{{this}}{{^@last}}, {{/@last}}{{/_enum}}{{/is}}
-{{/vars}}
+| Property | Type | Description |
+| :--- | :--- | :--- |
+{{#vars}}{{^isDeprecated}}| `{{name}}{{#required}} *{{/required}} ` | {{#isNot this 'primitive-type'}}[{{datatype}}]({{complexType}}){{/isNot}} | {{{unescapedDescription}}} {{#dataFormat}}format: {{{dataFormat}}}.{{/dataFormat}}{{#is this 'enum'}}Values: {{#_enum}}{{this}}{{^@last}}, {{/@last}}{{/_enum}}{{/is}} |
+{{/isDeprecated}}{{/vars}}
 {{/model}}
 {{/models}}

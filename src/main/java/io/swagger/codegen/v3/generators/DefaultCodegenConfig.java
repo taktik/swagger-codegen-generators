@@ -1410,6 +1410,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 postProcessModelProperty(codegenModel, prop);
             }
         }
+
+        Object modelLevelDeprecations = codegenModel.getVendorExtensions().get(CodegenConstants.IS_DEPRECATED_EXT_NAME);
+        if (modelLevelDeprecations != null) {
+            ((Map<String,String>) modelLevelDeprecations).entrySet().forEach(e -> {
+                codegenModel.vars.forEach(v -> {
+                    if (e.getKey().equals(v.baseName)) {
+                        v.vendorExtensions.put(CodegenConstants.IS_DEPRECATED_EXT_NAME, "true".equals(e.getValue()));
+                    }
+                });
+            });
+        }
+
         return codegenModel;
     }
 
@@ -1511,6 +1523,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         if (propertySchema.getReadOnly() != null) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
+        }
+        if (propertySchema.getDeprecated() != null) {
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DEPRECATED_EXT_NAME, propertySchema.getDeprecated());
         }
         if (propertySchema.getXml() != null) {
             if (propertySchema.getXml().getAttribute() != null) {
