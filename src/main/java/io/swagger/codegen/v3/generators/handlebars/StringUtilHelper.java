@@ -20,6 +20,10 @@ public class StringUtilHelper {
         return builder.toString();
     }
 
+    public String lc(String element) {
+        return element == null ? element : element.toLowerCase();
+    }
+
     public String backSlash() {
         return "\\";
     }

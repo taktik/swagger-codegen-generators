@@ -42,6 +42,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     private static final String UNDEFINED_VALUE = "undefined";
 
     protected String modelPropertyNaming= "camelCase";
+
     protected Boolean supportsES6 = true;
     protected HashSet<String> languageGenericTypes;
 
@@ -186,6 +187,11 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public String toModelName(String name) {
         name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+
+        if (StringUtils.endsWithAny(name, "Dto")) {
+            name = name.substring(0, name.length() - 3);
+        }
+        name = name.replaceAll("Dto([A-Z])", "$1");
 
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             name = modelNamePrefix + "_" + name;

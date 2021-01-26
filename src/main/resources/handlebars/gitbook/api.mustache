@@ -1,0 +1,87 @@
+{{#operations}}# {{baseName}}
+
+{{#description}}{{&description}}
+
+{{/description}}
+{{#operation}}
+{{#contents}}
+{% api-method method="{{lc httpMethod}}" host="https://demo.icure.cloud" path="{{path}}" %}
+{% api-method-summary %}
+{{#summary}}{{&summary}}.
+{{/summary}}
+{% endapi-method-summary %}
+
+{% api-method-description %}
+{{&notes}}
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{{#hasPathParams}}
+{% api-method-path-parameters %}
+{{#pathParams}}
+{% api-method-parameter name="{{paramName}}" type="{{dataType}}" required={{#required}}true{{/required}}{{^required}}false{{/required}} %}
+{{description}}
+{% endapi-method-parameter %}
+{{/pathParams}}
+{% endapi-method-path-parameters %}
+{{/hasPathParams}}
+{{#hasHeaderParams}}
+{% api-method-headers %}
+{{#headerParams}}
+{% api-method-parameter name="{{paramName}}" type="{{dataType}}" required={{#required}}true{{/required}}{{^required}}false{{/required}} %}
+{{description}}
+{% endapi-method-parameter %}
+{{/headerParams}}
+{% endapi-method-headers %}
+{{/hasHeaderParams}}
+{{#hasQueryParams}}
+{% api-method-query-parameters %}
+{{#queryParams}}
+{% api-method-parameter name="{{paramName}}" type="{{dataType}}" required={{#required}}true{{/required}}{{^required}}false{{/required}} %}
+{{description}}
+{% endapi-method-parameter %}
+{{/queryParams}}
+{% endapi-method-query-parameters %}
+{{/hasQueryParams}}
+{{#hasFormParams}}
+{% api-method-form-parameters %}
+{{#formParams}}
+{% api-method-parameter name="{{paramName}}" type="{{dataType}}" required={{#required}}true{{/required}}{{^required}}false{{/required}} %}
+{{description}}
+{% endapi-method-parameter %}
+{{/formParams}}
+{% endapi-method-form-parameters %}
+{{/hasFormParams}}
+{{#bodyParam}}
+{% api-method-body-parameters %}
+{% api-method-parameter name="{{paramName}}" type="{{dataType}}" required={{#required}}true{{/required}}{{^required}}false{{/required}} %}
+{{description}}
+{% endapi-method-parameter %}
+{% endapi-method-body-parameters %}
+{{/bodyParam}}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{{#responses}}
+{% api-method-response-example httpCode={{code}} %}
+{% api-method-response-example-description %}
+{{message}}
+{% endapi-method-response-example-description %}
+{{#examples}}
+
+```
+{{example}}
+```
+{{/examples}}
+{% endapi-method-response-example %}
+{{/responses}}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{{/contents}}
+
+{{/operation}}
+
+{{/operations}}
